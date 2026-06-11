@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: prod-mongodb
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+
+  redis:
+    image: redis:7.0-alpine
+    container_name: prod-redis
+    restart: always
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: prod-backend
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongodb:27017/collaborative-novel
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - AI_MODE=mock
+      - AI_FALLBACK_TO_MOCK=true
+      - AI_REQUEST_TIMEOUT_MS=30000
+    depends_on:
+      - mongodb
+      - redis
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://160.191.237.64:3001/api
+        - NEXT_PUBLIC_SOCKET_URL=http://160.191.237.64:3001
+    container_name: prod-frontend
+    restart: always
+    ports:
+      - "80:3000"
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
+  redis_data:
