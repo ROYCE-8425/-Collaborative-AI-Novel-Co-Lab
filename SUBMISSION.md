@@ -2,6 +2,12 @@
 
 ## Đề tài: Nền tảng Đồng sáng tác Tiểu thuyết AI Realtime (Collaborative AI Novel Co-Lab)
 
+> [!TIP]
+> **ĐỊA CHỈ TRUY CẬP DEMO TRỰC TUYẾN (ONLINE):**
+> * **Frontend (Giao diện người dùng):** [http://160.191.237.64](http://160.191.237.64)
+> * **Backend API:** [http://160.191.237.64:3001/api](http://160.191.237.64:3001/api)
+> * **Phòng Demo Mẫu:** **`DEMO99`** (Đã nạp sẵn dữ liệu bối cảnh và chương 1)
+
 > [!IMPORTANT]
 > **TÀI LIỆU CHÍNH:** Đây là tài liệu hướng dẫn tổng quan và chấm bài chính dành cho Giảng viên và Ban giám khảo. Mọi thông tin thiết lập nhanh, kịch bản chạy thử, giải trình lý do lựa chọn công nghệ và liên kết tài liệu chi tiết đều được tổng hợp đầy đủ tại đây.
 
