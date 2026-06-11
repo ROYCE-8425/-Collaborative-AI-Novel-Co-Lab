@@ -4,8 +4,8 @@
 
 > [!TIP]
 > **ĐỊA CHỈ TRUY CẬP DEMO TRỰC TUYẾN (ONLINE):**
-> * **Frontend (Giao diện người dùng):** [http://160.191.237.64](http://160.191.237.64)
-> * **Backend API:** [http://160.191.237.64:3001/api](http://160.191.237.64:3001/api)
+> * **Frontend (Giao diện người dùng):** [http://trannhuy.online](http://trannhuy.online)
+> * **Backend API:** [http://trannhuy.online:3001/api](http://trannhuy.online:3001/api)
 > * **Phòng Demo Mẫu:** **`DEMO99`** (Đã nạp sẵn dữ liệu bối cảnh và chương 1)
 
 > [!IMPORTANT]

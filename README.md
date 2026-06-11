@@ -2,7 +2,7 @@
 
 > [!IMPORTANT]
 > **TÀI LIỆU NỘP BÀI CHÍNH:** Hướng dẫn chấm bài nhanh, giải trình lựa chọn công nghệ, kịch bản chạy thử nghiệm E2E và danh sách ảnh minh chứng nằm tại tệp tin **[SUBMISSION.md](SUBMISSION.md)**.
-> * **Link chạy thử trực tiếp (Online Demo):** [http://160.191.237.64](http://160.191.237.64)
+> * **Link chạy thử trực tiếp (Online Demo):** [http://trannhuy.online](http://trannhuy.online)
 > * **Mã phòng mẫu:** **`DEMO99`**
 
 Dự án này là đồ án môn học Công nghệ Phần mềm được xây dựng theo mô hình **ứng dụng thời gian thực đa người dùng kết hợp WebSocket, Redis và MongoDB**. Hệ thống mở rộng bài toán chat realtime thành quy trình sáng tác tiểu thuyết cộng đồng chuyên nghiệp, trong đó AI đóng vai trò kiểm duyệt và viết nối tiếp mạch truyện.
