@@ -350,7 +350,7 @@ export default function GuestEntryPage() {
     // 2. Call seed endpoint first to ensure DEMO99 exists
     setGlobalLoading(true);
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/rooms/seed`, {
+      await apiFetch('/rooms/seed', {
         method: 'POST',
       });
       

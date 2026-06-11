@@ -1,4 +1,5 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
+  (typeof window !== 'undefined' ? '/api' : 'http://localhost:3001/api');
 
 export function getToken(): string | null {
   if (typeof window === 'undefined') return null;
