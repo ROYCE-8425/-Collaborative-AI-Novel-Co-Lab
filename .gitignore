@@ -1,0 +1,27 @@
+# Local Tool Repositories
+/OpenSpec/
+/Understand-Anything/
+/antigravity-awesome-skills/
+/codegraph/
+
+# Node & dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+.next/
+out/
+build/
+coverage/
+.turbo/

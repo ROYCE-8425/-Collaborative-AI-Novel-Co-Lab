@@ -1,0 +1,256 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8fafd; /* Soft, warm light purple-tinted white */
+  --foreground: #1e293b; /* Deep slate gray */
+  --surface: #ffffff; /* Crisp white for cards */
+  --surface-strong: #f1f5f9; /* Slate 100 for outlines */
+  --accent-purple: #ec4899; /* Dreamy rose pink */
+  --accent-blue: #38bdf8; /* Sky blue */
+  --accent-teal: #10b981; /* Friendly mint green */
+  --fs-green: #38bdf8; /* Remapped to dreamy Sky Blue */
+  --fs-green-hover: #7dd3fc;
+  --fs-green-shadow: #0284c7;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  
+  /* Dreamy Branded Palette */
+  --color-fs-green: var(--fs-green);
+  --color-fs-green-hover: var(--fs-green-hover);
+  --color-fs-green-shadow: var(--fs-green-shadow);
+  --color-fs-magenta: var(--accent-purple);
+  --color-fs-blue: var(--accent-blue);
+  --color-fs-indigo: #4f46e5;
+  --color-fs-violet: #7c3aed;
+  
+  --color-gray-250: #e2e0e7;
+  --color-gray-350: #c5c2cc;
+  --color-gray-450: #9995a3;
+  --color-gray-550: #767283;
+  --color-gray-650: #555162;
+  --color-gray-750: #33313e;
+  --color-gray-850: #191624;
+  --color-gray-855: #1c192a;
+  
+  --font-sans: var(--font-space-grotesk);
+  --font-display: var(--font-space-grotesk);
+  --font-novel: var(--font-fraunces);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--background);
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(244, 63, 94, 0.05), transparent 45rem),
+    radial-gradient(circle at 88% 22%, rgba(56, 189, 248, 0.12), transparent 45rem),
+    radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.08), transparent 45rem),
+    linear-gradient(135deg, #ffffff 0%, #f5f8fc 60%, #edf3fa 100%);
+  color: var(--foreground);
+  font-family: var(--font-space-grotesk), sans-serif;
+}
+
+::selection {
+  background: rgba(139, 92, 246, 0.32);
+  color: #ffffff;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.font-display {
+  font-family: var(--font-space-grotesk), sans-serif;
+}
+
+.font-novel {
+  font-family: var(--font-fraunces), serif;
+}
+
+.aurora-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at center, black, transparent 82%);
+}
+
+.glass-panel {
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.8)),
+    rgba(255, 255, 255, 0.9);
+  box-shadow: 0 24px 80px rgba(56, 189, 248, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(24px);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.35s ease both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.25);
+  border: 2px solid rgba(3, 2, 10, 0.85);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.4);
+}
+
+/* Premium UI additions */
+.gradient-text {
+  background: linear-gradient(135deg, #ffffff 0%, #d8b4fe 40%, #f472b6 70%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.novel-reader-bg {
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.05) 0%, rgba(248, 250, 253, 0.98) 100%);
+}
+
+.novel-page-effect {
+  border: 1px solid rgba(56, 189, 248, 0.12);
+  background: #fdfcf7; /* Book paper cream */
+  box-shadow: 0 16px 45px rgba(56, 189, 248, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  position: relative;
+}
+
+.novel-page-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.3) 0%, transparent 100%);
+  border-radius: 4px 0 0 4px;
+}
+
+.pulse-red {
+  animation: pulse-red-key 1.5s infinite;
+}
+
+@keyframes pulse-red-key {
+  0%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(244, 63, 94, 0.6);
+    color: rgb(251, 113, 133);
+  }
+  50% {
+    opacity: 0.65;
+    text-shadow: 0 0 3px rgba(244, 63, 94, 0.25);
+    color: rgb(244, 63, 94);
+  }
+}
+
+.shimmer-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-glow::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 45%,
+    rgba(255, 255, 255, 0.12) 50%,
+    transparent 55%
+  );
+  transform: rotate(-45deg);
+  animation: shimmer-effect 6s infinite linear;
+}
+
+@keyframes shimmer-effect {
+  0% {
+    transform: translate(-30%, -30%) rotate(-45deg);
+  }
+  100% {
+    transform: translate(30%, 30%) rotate(-45deg);
+  }
+}
+
+/* Fan Studio Brand Additions */
+.fs-hero-gradient {
+  background: linear-gradient(135deg, #34347c 0%, #622d86 50%, #c41d9b 100%);
+}
+
+.fs-services-gradient {
+  background: linear-gradient(180deg, #531a7b 0%, #483998 50%, #3f54b2 100%);
+}
+
+.fs-btn-green {
+  background-color: var(--fs-green) !important;
+  color: #ffffff !important;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 4px solid var(--fs-green-shadow) !important;
+  box-shadow: 0 4px 14px rgba(120, 198, 28, 0.3);
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fs-btn-green:hover {
+  background-color: var(--fs-green-hover) !important;
+  border-bottom: 4px solid #2dc90e !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(171, 229, 33, 0.45);
+}
+
+.fs-btn-green:active {
+  transform: translateY(2px);
+  border-bottom-width: 1px !important;
+  margin-top: 2px;
+  box-shadow: 0 2px 8px rgba(120, 198, 28, 0.2);
+}
+
+
