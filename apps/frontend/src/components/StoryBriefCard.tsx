@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookHalf, InfoCircleFill, TagFill, CompassFill, Scroll } from 'react-bootstrap-icons';
+import { BookHalf, InfoCircleFill, TagFill, CompassFill, Book } from 'react-bootstrap-icons';
 
 interface StoryBriefCardProps {
   roomName: string;
@@ -76,7 +76,7 @@ export function StoryBriefCard({
       {/* Active lore rules */}
       <div className="space-y-2 pt-2 border-t border-sky-100/60">
         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 select-none">
-          <Scroll className="w-3.5 h-3.5 text-amber-505" />
+          <Book className="w-3.5 h-3.5 text-amber-500" />
           Thiết lập bối cảnh kích hoạt ({activeRules.length})
         </span>
         {activeRules.length === 0 ? (
