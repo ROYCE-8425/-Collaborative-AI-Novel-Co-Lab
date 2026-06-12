@@ -17,6 +17,7 @@ import { HostControlPanel } from '../../../components/HostControlPanel';
 import { NovelReader } from '../../../components/NovelReader';
 import { LorebookDrawer } from '../../../components/LorebookDrawer';
 import { RealtimeLogDrawer } from '../../../components/RealtimeLogDrawer';
+import { StoryBriefCard } from '../../../components/StoryBriefCard';
 
 export default function RoomWorkspacePage() {
   const params = useParams();
@@ -476,6 +477,61 @@ export default function RoomWorkspacePage() {
   // Filter approved ideas for voting view
   const approvedIdeas = ideas.filter((idea) => idea.moderationResult === 'approved');
 
+  const getPhaseGuide = () => {
+    const loreCount = lorebook?.entries?.length || 0;
+    const approvedCount = approvedIdeas.length;
+
+    if (room?.status === 'lobby') {
+      return {
+        eyebrow: 'Bước 1',
+        title: 'Chuẩn bị phòng truyện',
+        body: 'Trước khi viết, hãy kiểm tra bút danh, mã phòng, người online và lorebook. Khi mọi người đã sẵn sàng, Host mở lượt đầu tiên.',
+        action: isHost ? 'Bạn là Host: bấm “Bắt Đầu Lượt Sáng Tác”.' : 'Bạn là Writer: chờ Host mở lượt viết.',
+        meta: [`${presenceList.length} tác giả online`, `${loreCount} mục lorebook`],
+      };
+    }
+
+    if (activeTurn?.status === 'submission') {
+      return {
+        eyebrow: 'Bước 2',
+        title: 'Gửi một ý tưởng ngắn, rõ và nối được vào truyện',
+        body: 'Đừng viết cả chương. Hãy gửi một bước ngoặt hoặc hành động tiếp theo để AI Lore Checker kiểm tra có hợp với bối cảnh không.',
+        action: myIdea ? 'Bạn đã gửi ý tưởng. Hãy chờ AI duyệt rồi chuẩn bị bình chọn.' : 'Viết 1 ý tưởng dưới 200 ký tự, ưu tiên có nhân vật, hành động và hệ quả.',
+        meta: [`${ideas.length} ý tưởng đã gửi`, `${approvedCount} ý tưởng hợp lệ`],
+      };
+    }
+
+    if (activeTurn?.status === 'voting') {
+      return {
+        eyebrow: 'Bước 3',
+        title: 'Chọn hướng truyện đáng để AI viết tiếp',
+        body: 'Giai đoạn này không phải chat nữa, mà là quyết định nhánh truyện. Mỗi người chỉ có một lượt vote để đảm bảo công bằng.',
+        action: hasVoted ? 'Bạn đã vote. Redis Lock sẽ chặn nếu cố vote lần hai.' : 'Chọn ý tưởng có khả năng tạo cao trào tốt nhất.',
+        meta: [`${approvedCount} ý tưởng để vote`, hasVoted ? 'Đã khóa vote của bạn' : 'Chưa vote'],
+      };
+    }
+
+    if (activeTurn?.status === 'writing') {
+      return {
+        eyebrow: 'Bước 4',
+        title: 'AI đang biến ý tưởng thắng cuộc thành bản thảo',
+        body: 'AI Writer viết đoạn truyện, sau đó AI Structure Manager quyết định nối vào chương cũ hay tạo chương mới trong MongoDB.',
+        action: 'Chờ Novel View bên phải sáng lên khi chương mới được publish realtime.',
+        meta: ['BullMQ đang xử lý AI job', 'MongoDB sẽ lưu chương'],
+      };
+    }
+
+    return {
+      eyebrow: 'Bước 5',
+      title: 'Chương mới đã publish, chuẩn bị lượt tiếp theo',
+      body: 'Đọc lại đoạn vừa được AI viết ở Novel View. Nếu muốn tiếp tục câu chuyện, Host mở lượt mới để mọi người gửi ý tưởng tiếp.',
+      action: isHost ? 'Bấm “Bắt Đầu Lượt Mới” khi cả nhóm đã đọc xong.' : 'Chờ Host mở lượt tiếp theo.',
+      meta: [`${chapters.length} chương/phân đoạn`, 'Realtime synced'],
+    };
+  };
+
+  const phaseGuide = getPhaseGuide();
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-[#f8fafd] text-slate-800 font-sans flex flex-col">
       {/* Background glowing decorations */}
@@ -621,6 +677,52 @@ export default function RoomWorkspacePage() {
           <div className="w-full lg:w-1/2 flex flex-col border-b lg:border-b-0 lg:border-r border-sky-100/60 bg-white/60 p-5 sm:p-6 overflow-y-auto backdrop-blur-xl">
             
             <PhaseStepper roomStatus={room.status} turnStatus={activeTurn?.status} />
+
+            {room && (
+              <div className="mt-4 mb-6">
+                <StoryBriefCard
+                  roomName={room.name}
+                  description={room.description}
+                  genre="Fantasy / Đồng sáng tác"
+                  objective={activeTurn?.objective || (room.status === 'lobby' ? 'Đang chờ Trưởng phòng khởi động lượt sáng tác đầu tiên để AI sinh khởi đầu cốt truyện...' : 'Đang sáng tác...')}
+                  lorebook={lorebook}
+                />
+              </div>
+            )}
+
+            <m.section
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 rounded-[1.75rem] border border-sky-100 bg-white/90 p-5 shadow-sm"
+            >
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="max-w-xl">
+                  <span className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-sky-600">
+                    {phaseGuide.eyebrow}
+                  </span>
+                  <h2 className="mt-3 font-display text-2xl font-black leading-tight text-slate-900">
+                    {phaseGuide.title}
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {phaseGuide.body}
+                  </p>
+                  <p className="mt-3 rounded-2xl border border-pink-100 bg-pink-50/70 px-4 py-3 text-xs font-bold leading-5 text-pink-700">
+                    {phaseGuide.action}
+                  </p>
+                </div>
+
+                <div className="grid min-w-[180px] gap-2 text-xs">
+                  {phaseGuide.meta.map((item) => (
+                    <span
+                      key={item}
+                      className="rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2 font-bold text-slate-600"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </m.section>
 
             {/* LOBBY STATE */}
             {room.status === 'lobby' && (
@@ -1069,4 +1171,3 @@ export default function RoomWorkspacePage() {
     </div>
   );
 }
-
