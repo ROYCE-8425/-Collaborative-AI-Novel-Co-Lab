@@ -18,6 +18,85 @@ import { NovelReader } from '../../../components/NovelReader';
 import { LorebookDrawer } from '../../../components/LorebookDrawer';
 import { RealtimeLogDrawer } from '../../../components/RealtimeLogDrawer';
 import { StoryBriefCard } from '../../../components/StoryBriefCard';
+import { StructuredIdeaForm } from '../../../components/StructuredIdeaForm';
+
+interface ParsedIdea {
+  proposedAction: string;
+  locationOrTarget: string;
+  consequence: string;
+  tone: string;
+  optionalNote: string;
+  isStructured: boolean;
+}
+
+function parseStructuredIdea(content: string): ParsedIdea {
+  const defaultRes = {
+    proposedAction: '',
+    locationOrTarget: '',
+    consequence: '',
+    tone: '',
+    optionalNote: '',
+    isStructured: false,
+  };
+
+  if (!content) return defaultRes;
+
+  const actionMatch = content.match(/Hành động:\s*([\s\S]*?)(?=\nBối cảnh\/đối tượng:|$)/i);
+  const locationMatch = content.match(/Bối cảnh\/đối tượng:\s*([\s\S]*?)(?=\nHậu quả:|$)/i);
+  const consequenceMatch = content.match(/Hậu quả:\s*([\s\S]*?)(?=\nTông cảm xúc:|$)/i);
+  const toneMatch = content.match(/Tông cảm xúc:\s*([\s\S]*?)(?=\nGhi chú cho AI:|$)/i);
+  const noteMatch = content.match(/Ghi chú cho AI:\s*([\s\S]*?)$/i);
+
+  if (actionMatch && locationMatch && consequenceMatch) {
+    return {
+      proposedAction: actionMatch[1].trim(),
+      locationOrTarget: locationMatch[1].trim(),
+      consequence: consequenceMatch[1].trim(),
+      tone: toneMatch ? toneMatch[1].trim() : 'không chỉ định',
+      optionalNote: noteMatch ? noteMatch[1].trim() : 'không có',
+      isStructured: true,
+    };
+  }
+
+  return defaultRes;
+}
+
+function RenderIdeaContent({ content }: { content: string }) {
+  const parsed = parseStructuredIdea(content);
+
+  if (!parsed.isStructured) {
+    return <p className="text-xs text-slate-800 leading-relaxed font-medium italic">"{content}"</p>;
+  }
+
+  return (
+    <div className="space-y-1.5 text-[11px] text-slate-700 bg-white/40 p-3 border border-sky-100/50 rounded-xl leading-normal text-left font-sans not-italic">
+      <div>
+        <span className="font-extrabold text-sky-600 block text-[9px] uppercase tracking-wider">⚡ Hành động:</span>
+        <span className="font-medium text-slate-800">{parsed.proposedAction}</span>
+      </div>
+      <div>
+        <span className="font-extrabold text-pink-600 block text-[9px] uppercase tracking-wider">📍 Bối cảnh:</span>
+        <span className="font-medium text-slate-750">{parsed.locationOrTarget}</span>
+      </div>
+      <div>
+        <span className="font-extrabold text-emerald-600 block text-[9px] uppercase tracking-wider">🔥 Hậu quả:</span>
+        <span className="font-medium text-slate-750">{parsed.consequence}</span>
+      </div>
+      {(parsed.tone && parsed.tone !== 'không chỉ định') && (
+        <div className="flex items-center gap-1.5">
+          <span className="font-extrabold text-slate-405 text-[9px] uppercase tracking-wider">🎭 Tông:</span>
+          <span className="font-bold text-pink-500 bg-pink-50/50 border border-pink-100/30 px-1 py-0.5 rounded text-[9px]">{parsed.tone}</span>
+        </div>
+      )}
+      {(parsed.optionalNote && parsed.optionalNote !== 'không có') && (
+        <div>
+          <span className="font-extrabold text-slate-405 block text-[9px] uppercase tracking-wider">📝 Ghi chú:</span>
+          <span className="italic text-slate-500 font-medium">{parsed.optionalNote}</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function RoomWorkspacePage() {
   const params = useParams();
@@ -380,14 +459,8 @@ export default function RoomWorkspacePage() {
     }
   };
 
-  const handleSubmitIdea = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!ideaContent.trim() || !activeTurn || !user) return;
-    if (ideaContent.trim().length > 200) {
-      setNotice('Ý tưởng không được vượt quá 200 ký tự.');
-      setTimeout(() => setNotice(null), 3000);
-      return;
-    }
+  const handleSubmitIdea = (content: string) => {
+    if (!content.trim() || !activeTurn || !user) return;
 
     setSubmittingIdea(true);
     const socket = getSocket();
@@ -396,15 +469,14 @@ export default function RoomWorkspacePage() {
         roomId,
         turnId: activeTurn._id,
         userId: user.id,
-        content: ideaContent.trim(),
+        content: content.trim(),
       });
       socket.emit('submit_idea', {
         roomId,
         turnId: activeTurn._id,
         userId: user.id,
-        content: ideaContent.trim(),
+        content: content.trim(),
       });
-      setIdeaContent('');
     }
   };
 
@@ -831,71 +903,38 @@ export default function RoomWorkspacePage() {
                   </div>
 
                   <HostControlPanel
-                     isHost={isHost}
-                     turnStatus={activeTurn?.status}
-                     onCloseSubmission={handleCloseSubmission}
-                     onCloseVoting={handleCloseVoting}
-                     timer={timer}
-                     onRetryAi={() => {
-                       const socket = getSocket();
-                       if (socket && user && activeTurn) {
-                         addLog('emit:generate_chapter_mock', { roomId, turnId: activeTurn._id, userId: user.id });
-                         socket.emit('generate_chapter_mock', { roomId, turnId: activeTurn._id, userId: user.id });
-                         setNotice('Đã yêu cầu AI thực hiện lại chấp bút.');
-                         setTimeout(() => setNotice(null), 3000);
-                       }
-                     }}
-                   />
+                    isHost={isHost}
+                    turnStatus={activeTurn?.status}
+                    onCloseSubmission={handleCloseSubmission}
+                    onCloseVoting={handleCloseVoting}
+                    timer={timer}
+                    onRetryAi={() => {
+                      const socket = getSocket();
+                      if (socket && user && activeTurn) {
+                        addLog('emit:generate_chapter_mock', { roomId, turnId: activeTurn._id, userId: user.id });
+                        socket.emit('generate_chapter_mock', { roomId, turnId: activeTurn._id, userId: user.id });
+                        setNotice('Đã yêu cầu AI thực hiện lại chấp bút.');
+                        setTimeout(() => setNotice(null), 3000);
+                      }
+                    }}
+                  />
 
                   {/* STAGE: SUBMISSION */}
                   {activeTurn.status === 'submission' && (
                     <div className="space-y-6">
                       {!myIdea ? (
-                        <m.form 
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          onSubmit={handleSubmitIdea} 
-                          className="space-y-3"
-                        >
-                          <label className="text-xs text-slate-700 font-bold">Ý Tưởng Đóng Góp Của Bạn</label>
-                          <div className="relative">
-                            <textarea
-                              rows={4}
-                              maxLength={200}
-                              required
-                              disabled={submittingIdea}
-                              placeholder="Hãy viết một bước ngoặt câu chuyện thú vị (tối đa 200 ký tự)... Ví dụ: 'Nhân vật chính phát hiện ra chiếc chìa khóa cổ thực chất là một cổng dịch chuyển không gian đã ngủ yên hàng triệu năm.'"
-                              value={ideaContent}
-                              onChange={(e) => setIdeaContent(e.target.value)}
-                              className="w-full bg-white border border-sky-200 rounded-2xl p-4 pr-12 text-sm focus:outline-none focus:border-sky-450 transition-colors resize-none text-slate-800 placeholder-slate-400 shadow-sm disabled:opacity-60"
-                            />
-                            <button
-                              type="submit"
-                              disabled={submittingIdea || !ideaContent.trim()}
-                              className="absolute bottom-4 right-4 p-2 bg-gradient-to-r from-sky-400 to-sky-500 text-white rounded-xl hover:from-sky-500 hover:to-sky-600 cursor-pointer transition-all disabled:opacity-40 disabled:pointer-events-none shadow-sm"
-                            >
-                              {submittingIdea ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <SendFill className="w-4 h-4" />
-                              )}
-                            </button>
-                          </div>
-                          <div className="flex justify-between text-[10px] text-slate-400 px-1 font-semibold">
-                            <span className="flex items-center gap-1">
-                              <QuestionCircleFill className="w-3 h-3 text-slate-400" /> Trí tuệ nhân tạo sẽ kiểm duyệt tính nhất quán cốt truyện.
-                            </span>
-                            <span>{ideaContent.length}/200</span>
-                          </div>
-                        </m.form>
+                        <StructuredIdeaForm
+                          submitting={submittingIdea}
+                          onSubmit={handleSubmitIdea}
+                        />
                       ) : (
                         <m.div
                           initial={{ scale: 0.98, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
                           className="border border-sky-100 bg-sky-50/30 rounded-2xl p-5 shadow-sm"
                         >
-                          <span className="text-[10px] text-slate-400 font-extrabold uppercase">Ý Tưởng Đã Gửi Của Bạn</span>
-                          <p className="text-sm text-slate-800 mt-2 font-medium italic">"{myIdea.content}"</p>
+                          <span className="text-[10px] text-slate-400 font-extrabold uppercase mb-2 block">Ý Tưởng Đã Gửi Của Bạn</span>
+                          <RenderIdeaContent content={myIdea.content} />
                           
                           <div className="border-t border-sky-100 pt-4 mt-4 flex items-center justify-between">
                             <div className="flex flex-col">
@@ -938,9 +977,9 @@ export default function RoomWorkspacePage() {
                               key={idea._id}
                               className="p-3.5 bg-slate-50 border border-slate-200 hover:border-sky-200 transition-colors rounded-xl flex items-start justify-between gap-3 shadow-xs"
                             >
-                              <div className="space-y-1">
-                                <p className="text-xs text-slate-800 font-medium italic">"{idea.content}"</p>
-                                <p className="text-[10px] text-slate-500">Tác giả: {getAuthorName(idea.creatorId)}</p>
+                              <div className="space-y-1.5 flex-1">
+                                <RenderIdeaContent content={idea.content} />
+                                <p className="text-[10px] text-slate-500 font-semibold px-1">Tác giả: {getAuthorName(idea.creatorId)}</p>
                               </div>
                               <span className="p-1 text-sky-500" title="Nhất quán với Lorebook">
                                 <Check className="w-3.5 h-3.5" />
@@ -977,9 +1016,9 @@ export default function RoomWorkspacePage() {
                                   : 'bg-white border-slate-200 hover:bg-slate-50 hover:border-sky-305'
                               } disabled:cursor-default shadow-xs`}
                             >
-                              <div className="space-y-1 text-xs">
-                                <p className="text-slate-800 font-medium italic">"{idea.content}"</p>
-                                <p className="text-[10px] text-slate-500">Tác giả: {getAuthorName(idea.creatorId)}</p>
+                              <div className="space-y-1.5 text-xs flex-1">
+                                <RenderIdeaContent content={idea.content} />
+                                <p className="text-[10px] text-slate-500 font-semibold px-1">Tác giả: {getAuthorName(idea.creatorId)}</p>
                               </div>
                               <div className="shrink-0 pt-0.5">
                                 {isVotedThis ? (
