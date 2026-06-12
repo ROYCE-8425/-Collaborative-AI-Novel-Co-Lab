@@ -324,8 +324,38 @@ export class RoomService {
   }
 
   async getRoomState(roomId: string, userId?: string) {
-    const room = await this.roomModel.findById(roomId).populate('hostId', 'username');
+    let room = await this.roomModel.findById(roomId).populate('hostId', 'username');
     if (!room) throw new NotFoundException('Room not found');
+
+    // Host recovery check: if current host is offline and there are online members, transfer host.
+    const presence = await this.redisService.getPresence(roomId);
+    if (presence.length > 0) {
+      const hostIdStr = room.hostId ? (room.hostId._id ? room.hostId._id.toString() : room.hostId.toString()) : '';
+      const isHostOnline = presence.some(p => p.userId === hostIdStr);
+      
+      if (!isHostOnline) {
+        const firstOnlineUser = presence.find(p => p.displayName !== 'system-host') || presence[0];
+        const newHostId = new Types.ObjectId(firstOnlineUser.userId);
+        
+        // Update room host in database
+        await this.roomModel.updateOne({ _id: room._id }, { $set: { hostId: newHostId } });
+        
+        // Update member roles in database
+        await this.memberModel.updateMany({ roomId: room._id }, { $set: { role: 'creator' } });
+        await this.memberModel.updateOne({ roomId: room._id, userId: newHostId }, { $set: { role: 'host' } });
+        
+        console.log(`[Host Recovery] Transferred host of room ${room.code} from offline host ${hostIdStr} to online user ${firstOnlineUser.displayName} (${firstOnlineUser.userId})`);
+        
+        // Reload room document with new populated host
+        room = await this.roomModel.findById(roomId).populate('hostId', 'username');
+        
+        // Broadcast host changed to notify all online clients to reload
+        if (this.roomGateway && this.roomGateway.server) {
+          this.roomGateway.server.to(roomId).emit('host_changed', { newHostId: firstOnlineUser.userId });
+        }
+      }
+    }
+
 
     const storedActiveTurn = room.activeTurnId ? await this.turnModel.findById(room.activeTurnId) : null;
     const activeTurn = storedActiveTurn?.status === 'finished' ? null : storedActiveTurn;

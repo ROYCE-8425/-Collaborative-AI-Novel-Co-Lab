@@ -296,6 +296,11 @@ export default function RoomWorkspacePage() {
       setTimeout(() => setNotice(null), 2500);
     });
 
+    onEvent('host_changed', (data: { newHostId: string }) => {
+      addLog('event:host_changed', data);
+      initializeRoom();
+    });
+
     onEvent('error', (message: any) => {
       const text = typeof message === 'string' ? message : message?.message || 'Lỗi thao tác thời gian thực.';
       setSubmittingIdea(false);
