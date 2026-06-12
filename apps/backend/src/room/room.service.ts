@@ -347,7 +347,10 @@ export class RoomService {
         console.log(`[Host Recovery] Transferred host of room ${room.code} from offline host ${hostIdStr} to online user ${firstOnlineUser.displayName} (${firstOnlineUser.userId})`);
         
         // Reload room document with new populated host
-        room = await this.roomModel.findById(roomId).populate('hostId', 'username');
+        const updatedRoom = await this.roomModel.findById(roomId).populate('hostId', 'username');
+        if (updatedRoom) {
+          room = updatedRoom;
+        }
         
         // Broadcast host changed to notify all online clients to reload
         if (this.roomGateway && this.roomGateway.server) {
