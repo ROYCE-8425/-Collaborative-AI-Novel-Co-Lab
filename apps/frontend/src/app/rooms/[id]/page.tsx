@@ -378,7 +378,12 @@ export default function RoomWorkspacePage() {
 
     onEvent('host_changed', (data: { newHostId: string }) => {
       addLog('event:host_changed', data);
-      initializeRoom();
+      setRoom((prev: any) => {
+        if (!prev) return prev;
+        return { ...prev, hostId: data.newHostId };
+      });
+      setNotice('Trưởng phòng đã rời phòng. Quyền trưởng phòng được chuyển giao tự động.');
+      setTimeout(() => setNotice(null), 3000);
     });
 
     onEvent('error', (message: any) => {
