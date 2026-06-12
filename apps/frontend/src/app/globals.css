@@ -37,7 +37,7 @@
   --color-gray-850: #191624;
   --color-gray-855: #1c192a;
   
-  --font-sans: var(--font-space-grotesk);
+  --font-sans: var(--font-inter);
   --font-display: var(--font-space-grotesk);
   --font-novel: var(--font-fraunces);
   --font-mono: var(--font-jetbrains-mono);
@@ -60,7 +60,7 @@ body {
     radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.08), transparent 45rem),
     linear-gradient(135deg, #ffffff 0%, #f5f8fc 60%, #edf3fa 100%);
   color: var(--foreground);
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-inter), sans-serif;
 }
 
 ::selection {

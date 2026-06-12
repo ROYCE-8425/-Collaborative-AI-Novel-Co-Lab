@@ -82,7 +82,7 @@ export function NovelReader({
                         </span>
                       )}
                     </div>
-                    <p className="text-base text-slate-800 leading-8 font-novel tracking-wide whitespace-pre-line text-justify pl-1">
+                    <p className="text-lg text-slate-900 leading-relaxed font-novel tracking-wide whitespace-pre-line text-justify pl-1">
                       {chapter.content}
                     </p>
                   </m.div>
